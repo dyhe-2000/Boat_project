@@ -90,6 +90,7 @@ class ProjectionNode(Node):
         #for i in range(len(coord_msg.coordinates)):
             #print(coord_msg.coordinates[i].x)
         #print("constructor finishes")
+        print("projection node started")
 
     def debug_callback(self, camera_msg, detection_msg, lidar_msg):
         projected_points = np.array([])
@@ -159,6 +160,7 @@ class ProjectionNode(Node):
 
             
     def callback(self, detection_msg, lidar_msg):
+        print("call back function")
         pts_num = lidar_msg.point_num
         if len(self.lidar_decay_list) > self.lidar_threshold / pts_num + 1:
            self.lidar_decay_list.pop(0)
