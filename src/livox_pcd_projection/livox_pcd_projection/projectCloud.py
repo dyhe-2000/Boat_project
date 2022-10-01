@@ -91,8 +91,6 @@ class ProjectionNode(Node):
             #print(coord_msg.coordinates[i].x)
         #print("constructor finishes")
         print("projection node started")
-        dist_msg = Dist()
-        self.publisher.publish(dist_msg)
 
     def debug_callback(self, camera_msg, detection_msg, lidar_msg):
         projected_points = np.array([])
@@ -200,7 +198,9 @@ class ProjectionNode(Node):
             center_x, center_y = pose2d.x, pose2d.y
             width, height = bbox.size_x, bbox.size_y
 
-            temp = []
+            tempX = []
+            tempY = []
+            tempZ = []
             us = projected_points[1, :]
             vs = projected_points[2, :]
             right = center_x + width / 2 * self.bbox_size
