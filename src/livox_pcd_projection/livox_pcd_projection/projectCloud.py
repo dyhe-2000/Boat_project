@@ -14,7 +14,7 @@ import message_filters
 from sensor_msgs.msg import Image, CameraInfo
 from livox_interfaces.msg import CustomMsg
 from dist_msg.msg import Dist
-from coord_msg.msg import Coord
+#from coord_msg.msg import Coord
 import numpy as np
 import cupy as cp
 import time
@@ -64,7 +64,7 @@ class ProjectionNode(Node):
         self.publisher = self.create_publisher(Dist, '/distances', 10)
 
         # create publisher for distances
-        self.coord_publisher = self.create_publisher(Coord, '/coordinates', 10)
+        #self.coord_publisher = self.create_publisher(Coord, '/coordinates', 10)
 
         # create subscriber to bbox and pointcloud
         self.detection_sub = message_filters.Subscriber(self, Detection2DArray, self.detection_topic)
@@ -80,16 +80,16 @@ class ProjectionNode(Node):
             self.ts = message_filters.ApproximateTimeSynchronizer([self.detection_sub, self.lidar_sub], 10, 1)
             self.ts.registerCallback(self.callback)
 
-        coord_msg = Coord()
+        #coord_msg = Coord()
         vector = Vector3()
         vector.x = 0
         vector.y = 0
         vector.z = 0
-        coord_msg.coordinates.append(vector)
+        #coord_msg.coordinates.append(vector)
 
-        for i in range(len(coord_msg.coordinates)):
-            print(coord_msg.coordinates[i].x)
-        print("constructor finishes")
+        #for i in range(len(coord_msg.coordinates)):
+            #print(coord_msg.coordinates[i].x)
+        #print("constructor finishes")
 
     def debug_callback(self, camera_msg, detection_msg, lidar_msg):
         projected_points = np.array([])
@@ -187,7 +187,7 @@ class ProjectionNode(Node):
 
         # calculate the average distance to the bounding boxes
         dist_msg = Dist()
-        coord_msg = Coord()
+        #coord_msg = Coord()
         for detection in detection_msg.detections:
             # parse data from detection_msg
             dist_msg.obj_classes.append(detection.results[0].hypothesis.class_id)
@@ -219,7 +219,7 @@ class ProjectionNode(Node):
             vector.x = resultX
             vector.y = resultY
             vector.z = resultZ
-            coord_msg.coordinates.append(vector)
+            #coord_msg.coordinates.append(vector)
         
         # publish Dist message
         dist_msg.header.stamp = self.get_clock().now().to_msg() # timestamp
@@ -227,9 +227,9 @@ class ProjectionNode(Node):
         self.publisher.publish(dist_msg)
 
         # publish Coord message
-        coord_msg.header.stamp = self.get_clock().now().to_msg() # timestamp
-        coord_msg.count = len(detection_msg.detections)
-        self.coord_publisher.publish(coord_msg)
+        #coord_msg.header.stamp = self.get_clock().now().to_msg() # timestamp
+        #coord_msg.count = len(detection_msg.detections)
+        #self.coord_publisher.publish(coord_msg)
 
     def calc_dist(self, dist_array):
         """Change this functiont to use different distance calculating methods"""
