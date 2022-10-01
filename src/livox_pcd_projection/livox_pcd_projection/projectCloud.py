@@ -82,9 +82,9 @@ class ProjectionNode(Node):
 
         #coord_msg = Coord()
         vector = Vector3()
-        vector.x = 0
-        vector.y = 0
-        vector.z = 0
+        vector.x = 0.0
+        vector.y = 0.0
+        vector.z = 0.0
         #coord_msg.coordinates.append(vector)
 
         #for i in range(len(coord_msg.coordinates)):
@@ -216,10 +216,16 @@ class ProjectionNode(Node):
             dist_msg.distances.append(resultX)
 
             vector = Vector3()
-            vector.x = resultX
-            vector.y = resultY
-            vector.z = resultZ
+            vector.x = float(resultX)
+            vector.y = float(resultY)
+            vector.z = float(resultZ)
             #coord_msg.coordinates.append(vector)
+            print("x:")
+            print(vector.x)
+            print("y:")
+            print(vector.y)
+            print("z:")
+            print(vector.z)
         
         # publish Dist message
         dist_msg.header.stamp = self.get_clock().now().to_msg() # timestamp
