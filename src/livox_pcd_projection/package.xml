@@ -14,12 +14,14 @@
 
   <depend>livox_interfaces</depend>
   <depend>dist_msg</depend>
+  <depend>coord_msg</depend>
   
   <exec_depend>rclpy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>vision_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>cv_bridge</exec_depend>
+  <depend>geometry_msgs</depend>
 
   <!-- for launch files -->
   <exec_depend>ros2launch</exec_depend>

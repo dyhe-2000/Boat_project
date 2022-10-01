@@ -1,4 +1,4 @@
-import rclpy #test push
+import rclpy
 from rclpy.node import Node
 from vision_msgs.msg import (
     Detection2D,
@@ -14,9 +14,11 @@ import message_filters
 from sensor_msgs.msg import Image, CameraInfo
 from livox_interfaces.msg import CustomMsg
 from dist_msg.msg import Dist
+from coord_msg.msg import Coord
 import numpy as np
 import cupy as cp
 import time
+from geometry_msgs.msg import Vector3
 
 class ProjectionNode(Node):
     def __init__(self):
@@ -61,6 +63,9 @@ class ProjectionNode(Node):
         # create publisher for distances
         self.publisher = self.create_publisher(Dist, '/distances', 10)
 
+        # create publisher for distances
+        self.publisher = self.create_publisher(Coord, '/coordinates', 10)
+
         # create subscriber to bbox and pointcloud
         self.detection_sub = message_filters.Subscriber(self, Detection2DArray, self.detection_topic)
         self.lidar_sub = message_filters.Subscriber(self, CustomMsg, self.lidar_topic)
@@ -74,6 +79,17 @@ class ProjectionNode(Node):
         else :
             self.ts = message_filters.ApproximateTimeSynchronizer([self.detection_sub, self.lidar_sub], 10, 1)
             self.ts.registerCallback(self.callback)
+
+        coord_msg = Coord()
+        vector = Vector3()
+        vector.x = 0
+        vector.y = 0
+        vector.z = 0
+        coord_msg.coordinates.append(vector)
+
+        for i in range(len(coord_msg.coordinates)):
+            print(coord_msg.coordinates[i].x)
+        print("constructor finishes")
 
     def debug_callback(self, camera_msg, detection_msg, lidar_msg):
         projected_points = np.array([])
@@ -189,6 +205,10 @@ class ProjectionNode(Node):
             temp = projected_points[0, (us >= left) & (us <= right) & (vs >= top) & (vs <= bottom)]
 
             temp = temp[~np.isnan(temp)]
+            print("projected_points.shape")
+            print(projected_points.shape) # guessing 4 by n
+            print("temp.shape")
+            print(temp.shape)
             result = self.calc_dist(temp)
             dist_msg.distances.append(result)
         
