@@ -91,6 +91,8 @@ class ProjectionNode(Node):
             #print(coord_msg.coordinates[i].x)
         #print("constructor finishes")
         print("projection node started")
+        dist_msg = Dist()
+        self.publisher.publish(dist_msg)
 
     def debug_callback(self, camera_msg, detection_msg, lidar_msg):
         projected_points = np.array([])
