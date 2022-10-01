@@ -64,7 +64,7 @@ class ProjectionNode(Node):
         self.publisher = self.create_publisher(Dist, '/distances', 10)
 
         # create publisher for distances
-        self.publisher = self.create_publisher(Coord, '/coordinates', 10)
+        self.coord_publisher = self.create_publisher(Coord, '/coordinates', 10)
 
         # create subscriber to bbox and pointcloud
         self.detection_sub = message_filters.Subscriber(self, Detection2DArray, self.detection_topic)
@@ -187,6 +187,7 @@ class ProjectionNode(Node):
 
         # calculate the average distance to the bounding boxes
         dist_msg = Dist()
+        coord_msg = Coord()
         for detection in detection_msg.detections:
             # parse data from detection_msg
             dist_msg.obj_classes.append(detection.results[0].hypothesis.class_id)
@@ -202,20 +203,33 @@ class ProjectionNode(Node):
             left = center_x - width / 2 * self.bbox_size
             top = center_y - height / 2 * self.bbox_size
             bottom = center_y + height / 2 * self.bbox_size
-            temp = projected_points[0, (us >= left) & (us <= right) & (vs >= top) & (vs <= bottom)]
+            tempX = projected_points[0, (us >= left) & (us <= right) & (vs >= top) & (vs <= bottom)]
+            tempX = tempX[~np.isnan(tempX)]
+            tempY = projected_points[1, (us >= left) & (us <= right) & (vs >= top) & (vs <= bottom)]
+            tempY = tempY[~np.isnan(tempY)]
+            tempZ = projected_points[2, (us >= left) & (us <= right) & (vs >= top) & (vs <= bottom)]
+            tempZ = tempZ[~np.isnan(tempZ)]
+            
+            resultX = self.calc_dist(tempX)
+            resultY = self.calc_dist(tempY)
+            resultZ = self.calc_dist(tempZ)
+            dist_msg.distances.append(resultX)
 
-            temp = temp[~np.isnan(temp)]
-            print("projected_points.shape")
-            print(projected_points.shape) # guessing 4 by n
-            print("temp.shape")
-            print(temp.shape)
-            result = self.calc_dist(temp)
-            dist_msg.distances.append(result)
+            vector = Vector3()
+            vector.x = resultX
+            vector.y = resultY
+            vector.z = resultZ
+            coord_msg.coordinates.append(vector)
         
         # publish Dist message
         dist_msg.header.stamp = self.get_clock().now().to_msg() # timestamp
         dist_msg.count = len(detection_msg.detections)
         self.publisher.publish(dist_msg)
+
+        # publish Coord message
+        coord_msg.header.stamp = self.get_clock().now().to_msg() # timestamp
+        coord_msg.count = len(detection_msg.detections)
+        self.coord_publisher.publish(coord_msg)
 
     def calc_dist(self, dist_array):
         """Change this functiont to use different distance calculating methods"""
